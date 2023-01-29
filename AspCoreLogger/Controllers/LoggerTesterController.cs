@@ -1,3 +1,4 @@
+using AspCoreLogger.CustomLog;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AspCoreLogger.Controllers
@@ -12,67 +13,73 @@ namespace AspCoreLogger.Controllers
         {
             _logger = logger;
         }
-
-        private static readonly string[] Summaries = new[]
+        
+        [HttpGet("LoggerCustom")]
+        public void LoggerCustom(string name)
         {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-        [HttpGet(Name = "LoggerInformation")]
-        public IEnumerable<WeatherForecast> LoggerInformation()
-        {
-            _logger.LogInformation("GetWeatherForecast called at {time}", DateTime.Now);
-
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            try
             {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
+                throw new NotImplementedException($"cannot connect to database {name}");
+            }
+            catch (Exception ex)
+            {
+                _logger.DatabaseConnectionFailed(ex);
+            }
+        }
+        
+        [HttpGet("LoggerInformation")]
+        public IActionResult LoggerInformation()
+        {
+            _logger.LogInformation("LoggerInformation called at {time}", DateTime.Now);
+
+            return Ok();
         }
 
-        [HttpGet(Name = "LoggerError")]
-        public void LoggerError()
+        [HttpGet("LoggerError")]
+        public IActionResult LoggerError()
         {
             try
             {
                 throw new NotImplementedException("Log Error");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "LogError called");
             }
+
+            return Ok();
         }
 
-        [HttpGet("AttributeLogger")]
-        [LoggerMessage(0, LogLevel.Information, "Doing something at {Time}")]
-        public void AttributeLogger(ILogger logger)
-        {
-            logger.LogInformation("Doing something at {Time}", DateTimeOffset.UtcNow);
-        }
-
-        [HttpGet(Name = "LoggerCritical")]
-        public void LoggerCritical()
+        [HttpGet("LoggerCritical")]
+        public IActionResult LoggerCritical()
         {
             _logger.LogCritical("LogCritical called");
+
+            return BadRequest();
         }
 
-        [HttpGet(Name = "LoggerDebug")]
-        public void LoggerDebug()
+        [HttpGet("LoggerDebug")]
+        public IActionResult LoggerDebug()
         {
             _logger.LogDebug("LogDebug called");
+
+            return NoContent();
         }
 
-        [HttpGet(Name = "LoggerTrace")]
-        public void LoggerTrace()
+        [HttpGet("LoggerTrace")]
+        public IActionResult LoggerTrace()
         {
             _logger.LogTrace("LogTrace called");
+
+            return Ok();
         }
 
-        [HttpGet(Name = "LoggerWarning")]
-        public void LoggerWarning()
+        [HttpGet("LoggerWarning")]
+        public IActionResult LoggerWarning()
         {
             _logger.LogWarning("LogWarning called");
+
+            return NotFound();
         }
     }
 }

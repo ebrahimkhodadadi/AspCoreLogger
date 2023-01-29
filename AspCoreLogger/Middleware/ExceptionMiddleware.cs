@@ -25,6 +25,14 @@ public class ExceptionMiddleware
             _logger.LogError($"Something went wrong: {ex.Message}");
             await HandleExceptionAsync(httpContext, ex);
         }
+        finally
+        {
+            _logger.LogInformation(
+                "Request {method} {url} => {statusCode}",
+                httpContext.Request?.Method,
+                httpContext.Request?.Path.Value,
+                httpContext.Response?.StatusCode);
+        }
     }
 
     private Task HandleExceptionAsync(HttpContext context, Exception exception)

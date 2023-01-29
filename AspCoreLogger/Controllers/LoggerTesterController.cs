@@ -11,7 +11,7 @@ namespace AspCoreLogger.Controllers
 
         public LoggerTesterController(ILogger<LoggerTesterController> logger)
         {
-            _logger = logger;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
         
         [HttpGet("LoggerCustom")]

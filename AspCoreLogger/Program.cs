@@ -21,29 +21,7 @@ namespace AspCoreLogger
             
             builder.Services.AddSwaggerGen();
 
-            #region serilog
-            builder.Host.UseContentRoot(Directory.GetCurrentDirectory());
-            builder.Host
-                .UseSerilog((hostingContext, config) => config
-                .Enrich.FromLogContext()
-                .Enrich.WithExceptionDetails()
-                .Enrich.WithMachineName()
-                .Enrich.WithCorrelationId()
-                .Enrich.WithProperty("Environment", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"))
-                .WriteTo.Console()
-                .WriteTo.Elasticsearch(ConfigureElasticSearchSink())
-                .ReadFrom.Configuration(hostingContext.Configuration));
-            
-            builder.Configuration
-                        .SetBasePath(builder.Environment.ContentRootPath)
-                        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                        .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
-                        .AddEnvironmentVariables();
-
-            builder.Logging.ClearProviders();
-            builder.Logging.AddConsole();
-            builder.Logging.AddSerilog();
-            #endregion
+            builder.Host.AddLoggerService(builder.Configuration, builder.Environment, builder.Logging);
 
             var app = builder.Build();
 
@@ -62,20 +40,6 @@ namespace AspCoreLogger
             app.MapControllers();
 
             app.Run();
-        }
-
-        private static ElasticsearchSinkOptions ConfigureElasticSearchSink()
-        {
-            var configuration = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true)
-                .Build();
-            var elasticUri = new Uri(configuration["ElasticConfiguration:Uri"]);
-            return new ElasticsearchSinkOptions(elasticUri)
-            {
-                AutoRegisterTemplate = true,
-                IndexFormat = $"logging-microservice-architecture-demo-{DateTime.UtcNow:yyyy-MM}"
-            };
         }
     }
 }

@@ -1,45 +1,36 @@
-using AspCoreLogger.Middleware;
-using Microsoft.AspNetCore.Hosting;
+using ElasticLogger.Extensions;
 using Serilog;
-using Serilog.Exceptions;
-using Serilog.Sinks.Elasticsearch;
-using System.Reflection.PortableExecutable;
 
-namespace AspCoreLogger
+try
 {
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            var builder = WebApplication.CreateBuilder(args);
+    var builder = WebApplication.CreateBuilder(args);
+    builder.AddSerilog(builder.Configuration, "APIElasticsearch");
+    Log.Information("Starting API");
 
-            builder.Services.AddControllers();
-            builder.Services.AddCors();
-            builder.Services.AddHttpContextAccessor();
-            
-            builder.Services.AddEndpointsApiExplorer();
-            
-            builder.Services.AddSwaggerGen();
+    builder.Services.AddApiConfiguration();
 
-            builder.Host.AddLoggerService(builder.Configuration, builder.Environment, builder.Logging);
+    builder.Services.AddElasticsearch(builder.Configuration);
+    builder.Services.AddSwagger(builder.Configuration);
 
-            var app = builder.Build();
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
 
-            app.UseMiddleware<ExceptionMiddleware>();
-            
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+    var app = builder.Build();
 
-            app.UseHttpsRedirection();
+    app.UseApiConfiguration(app.Environment);
 
-            app.UseAuthorization();
+    app.UseSwaggerDoc();
 
-            app.MapControllers();
+    app.MapControllers();
 
-            app.Run();
-        }
-    }
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Host terminated unexpectedly");
+}
+finally
+{
+    Log.Information("Server Shutting down...");
+    Log.CloseAndFlush();
 }

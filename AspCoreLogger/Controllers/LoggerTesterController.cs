@@ -1,4 +1,4 @@
-using AspCoreLogger.CustomLog;
+using ElasticLogger.CustomLog;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AspCoreLogger.Controllers

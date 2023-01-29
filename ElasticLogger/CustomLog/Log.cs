@@ -1,5 +1,6 @@
-﻿
-namespace AspCoreLogger.CustomLog;
+﻿using Microsoft.Extensions.Logging;
+
+namespace ElasticLogger.CustomLog;
 
 public static partial class Log
 {

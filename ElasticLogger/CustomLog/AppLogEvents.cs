@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace AspCoreLogger.CustomLog;
+namespace ElasticLogger.CustomLog;
 
 internal static class AppLogEvents
 {

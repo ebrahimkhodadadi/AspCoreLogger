@@ -4,18 +4,22 @@ using Serilog;
 try
 {
     var builder = WebApplication.CreateBuilder(args);
-    builder.AddSerilog(builder.Configuration, "APIElasticsearch");
+
+    builder.AddLogger(builder.Configuration, "APIElasticsearch");
+
     Log.Information("Starting API");
 
     builder.Services.AddApiConfiguration();
 
-    builder.Services.AddElasticsearch(builder.Configuration);
+
     builder.Services.AddSwagger(builder.Configuration);
 
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
 
     var app = builder.Build();
+
+    app.UseElasticSearch();
 
     app.UseApiConfiguration(app.Environment);
 

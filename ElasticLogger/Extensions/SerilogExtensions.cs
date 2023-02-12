@@ -15,7 +15,7 @@ namespace ElasticLogger.Extensions;
 
 public static class SerilogExtensions
 {
-    public static WebApplicationBuilder AddSerilog(this WebApplicationBuilder builder, IConfiguration configuration, string applicationName)
+    public static WebApplicationBuilder AddLogger(this WebApplicationBuilder builder, IConfiguration configuration, string applicationName)
     {
         Log.Logger = new LoggerConfiguration()
             .ReadFrom.Configuration(configuration)
@@ -40,6 +40,8 @@ public static class SerilogExtensions
 
         builder.Logging.ClearProviders();
         builder.Host.UseSerilog(Log.Logger, true);
+
+        builder.Services.AddElasticsearch(configuration);
 
         return builder;
     }
